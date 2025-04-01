@@ -50,10 +50,10 @@ const Home = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h1>Productos Registrados</h1>
+    <div className="container-fluid mt-5">
+      <h1 className="text-center">Productos Registrados</h1>
       {products.length === 0 ? (
-        <p>No hay productos registrados.</p>
+        <p className="text-center">No hay productos registrados.</p>
       ) : (
         <ul className="list-group">
           {products.map((product) => {
@@ -65,13 +65,15 @@ const Home = () => {
                 key={product.id}
                 className={`list-group-item d-flex justify-content-between align-items-center ${productClass}`}
               >
-                {product.productName} - Expira el {product.expirationDate} - Código: {product.productCode}
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => handleDelete(product.id)}
-                >
-                  Eliminar
-                </button>
+                <div className="d-flex flex-column flex-sm-row w-100">
+                  <span className="flex-grow-1">{product.productName} - Expira el {product.expirationDate} - Código: {product.productCode}</span>
+                  <button
+                    className="btn btn-danger btn-sm ms-2 mt-2 mt-sm-0"
+                    onClick={() => handleDelete(product.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </li>
             );
           })}
@@ -81,9 +83,9 @@ const Home = () => {
       <hr />
 
       {/* Mostrar las notificaciones */}
-      <h2>Notificaciones</h2>
+      <h2 className="text-center">Notificaciones</h2>
       {notifications.length === 0 ? (
-        <p>No hay productos por caducar pronto.</p>
+        <p className="text-center">No hay productos por caducar pronto.</p>
       ) : (
         <ul className="list-group">
           {notifications.map((notification) => (
