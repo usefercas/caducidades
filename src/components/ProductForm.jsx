@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Confetti from 'react-confetti';
 
 const ProductForm = () => {
   const [productName, setProductName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
-  const [productCode, setProductCode] = useState('');  // Nuevo estado para el código del producto
+  const [productCode, setProductCode] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Creamos un id único para el producto
     const newProduct = {
-      id: Date.now(), // Usamos el timestamp como id único
+      id: Date.now(),
       productName,
       expirationDate,
-      productCode,  // Incluimos el código del producto
+      productCode,
     };
 
-    // Obtenemos los productos actuales del localStorage
     const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
-    
-    // Agregamos el nuevo producto a la lista
     storedProducts.push(newProduct);
-
-    // Guardamos la lista actualizada en localStorage
     localStorage.setItem('products', JSON.stringify(storedProducts));
 
-    // Redirigimos a la página de inicio
-    navigate('/');
+    setShowConfetti(true);
+    setTimeout(() => {
+      setShowConfetti(false);
+      navigate('/');
+    }, 3000); // Duración del confeti antes de redirigir
   };
 
   return (
-    <div className="container mt-4"> {/* Cambié la clase mt-5 por mt-4 para acercar más el formulario */}
+    <div className="container mt-4">
+      {showConfetti && <Confetti origin={{ x: window.innerWidth / 2, y: window.innerHeight - 50 }} />} {/* Confeti desde abajo */}
       <div className="row justify-content-center">
         <div className="col-12 col-md-8 col-lg-6">
           <h1 className="text-center mb-4">Bienvenido al Registro de Productos</h1>
@@ -62,7 +62,7 @@ const ProductForm = () => {
             <div className="mb-3">
               <label htmlFor="productCode" className="form-label">Código del Producto</label>
               <input
-                type="number"  // Puedes usar "text" si deseas permitir caracteres no solo números
+                type="number"
                 id="productCode"
                 className="form-control"
                 value={productCode}
