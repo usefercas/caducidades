@@ -4,47 +4,48 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
-  // Cargar los productos desde localStorage al iniciar
   useEffect(() => {
     const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
     setProducts(storedProducts);
-
-    // Generar las notificaciones para los productos que están por caducar
     generateNotifications(storedProducts);
   }, []);
 
-  // Función para eliminar un producto usando su id único
   const handleDelete = (productId) => {
     const updatedProducts = products.filter(product => product.id !== productId);
-    setProducts(updatedProducts);  // Actualizamos el estado de productos
+    setProducts(updatedProducts);
     localStorage.setItem('products', JSON.stringify(updatedProducts));
-
-    // Regeneramos las notificaciones después de eliminar un producto
     generateNotifications(updatedProducts);
   };
 
-  // Función para calcular los días restantes hasta la caducidad
   const calculateDaysToExpire = (expirationDate) => {
     const currentDate = new Date();
     const expiryDate = new Date(expirationDate);
+    currentDate.setHours(0, 0, 0, 0);
+    expiryDate.setHours(0, 0, 0, 0);
     const timeDifference = expiryDate - currentDate;
-    return Math.ceil(timeDifference / (1000 * 3600 * 24)); // Devuelve los días restantes
+    return Math.floor(timeDifference / (1000 * 3600 * 24));
   };
 
-  // Función para generar notificaciones
   const generateNotifications = (storedProducts) => {
-    const currentDate = new Date();
     const newNotifications = storedProducts.filter(product => {
       const daysToExpire = calculateDaysToExpire(product.expirationDate);
-      const isExpiringTomorrow = daysToExpire === 1; // Producto expira mañana
+      return daysToExpire <= 1; 
+    }).map(product => {
+      const daysToExpire = calculateDaysToExpire(product.expirationDate);
+      let message;
+      if (daysToExpire === 0) {
+        message = `⚠️ El producto ${product.productName} caduca hoy (${product.expirationDate}).`;
+      } else if (daysToExpire === 1) {
+        message = `⚠️ El producto ${product.productName} caduca mañana (${product.expirationDate}).`;
+      } else {
+        message = `⚠️ El producto ${product.productName} ya ha caducado (Caducó el ${product.expirationDate}).`;
+      }
+      return {
+        id: product.id,
+        message,
+      };
+    });
 
-      return isExpiringTomorrow;
-    }).map(product => ({
-      id: product.id,
-      message: `El producto ${product.productName} está a punto de caducar mañana. Fecha de caducidad: ${product.expirationDate}.`,
-    }));
-
-    // Actualizamos las notificaciones en el estado y en localStorage
     setNotifications(newNotifications);
     localStorage.setItem('notifications', JSON.stringify(newNotifications));
   };
@@ -82,10 +83,9 @@ const Home = () => {
 
       <hr />
 
-      {/* Mostrar las notificaciones */}
       <h2 className="text-center">Notificaciones</h2>
       {notifications.length === 0 ? (
-        <p className="text-center">No hay productos por caducar pronto.</p>
+        <p className="text-center">✅ No hay productos caducados o por caducar hoy o mañana.</p>
       ) : (
         <ul className="list-group">
           {notifications.map((notification) => (
